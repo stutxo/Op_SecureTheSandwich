@@ -11,6 +11,18 @@ Can you stop the evil cat thief from eating the Reuben sandwich before it's too 
 - Rust
 - Bitcoin Inquisition node https://github.com/bitcoin-inquisition/bitcoin
 
+## Setup
+
+follow this guide to compile bitcoin (works for the inquisition fork) I will add a docker file or something to do this eventually
+
+https://jonatack.github.io/articles/how-to-compile-bitcoin-core-and-run-the-tests
+
+Install rustup
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
 ## Commands
 
 To start the game, run the following commands
@@ -20,16 +32,19 @@ Start a bitcoin inquisition node in regtest (i had to add fallback fee for now t
 ./bitcoind -regtest -fallbackfee=0.0001
 ```
 
+install and run the game!
 ```bash
+git clone https://github.com/stutxo/Op_SecureTheSandwich.git
+cd op_securethesandwich
 cargo run
 ```
 
 ## Example
 
 ```bash
-➜  Op_SecureTheSandwich git:(main) cargo run
+➜  op_securethesandwich git:(main) cargo run
     Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.03s
-     Running `target/debug/Op_SecureTheSandwich`
+     Running `target/debug/op_securethesandwich`
 Wallet loaded successfully.
 🥶 basement fridge address: bcrt1qlay8zlqhrsly9u0q9mmnlfjmrvccp9f3j0jehz
 🧊 kitchen fridge (CTV Vault Address):
