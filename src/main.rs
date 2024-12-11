@@ -438,6 +438,7 @@ fn create_vault_address(amount: Amount, unvault_addr: Address) -> Result<Taproot
     Ok(taproot_spend_info)
 }
 
+// thanks @bennyhodl https://github.com/bennyhodl/dlcat
 fn calc_ctv_hash(outputs: &[TxOut], is_timout_script: bool) -> [u8; 32] {
     let mut buffer = Vec::new();
     buffer.extend(2_i32.to_le_bytes()); // version
