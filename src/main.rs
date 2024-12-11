@@ -45,12 +45,8 @@ fn main() {
     let load_wallet = bitcoin_rpc.load_wallet(wallet_name);
 
     match load_wallet {
-        Ok(_) => {
-            println!("Wallet loaded successfully.");
-        }
-        Err(e) => {
-            println!("Error loading wallet: {:?}", e);
-        }
+        Ok(_) => println!("Wallet loaded successfully."),
+        Err(e) => println!("Error loading wallet: {:?}", e),
     }
 
     let funding_address = bitcoin_rpc.get_new_address(None, None).unwrap();
@@ -60,8 +56,6 @@ fn main() {
     let cold_storage_address = cold_storage_address
         .require_network(Network::Regtest)
         .unwrap();
-
-    println!("Cold storage address: {:?}", cold_storage_address);
 
     let secp = Secp256k1::new();
 
@@ -80,11 +74,21 @@ fn main() {
 
     let ctv_vault_address = Address::p2tr_tweaked(vault_spend_info.output_key(), Network::Regtest);
 
-    println!("CTV Vault Address: {:?}", ctv_vault_address);
-    println!("CTV Unvault Address: {:?}", ctv_unvault_address);
+    println!(
+        "🥶 Basement cold fridge address: {:?}",
+        cold_storage_address
+    );
 
-    println!("Mining 101 blocks to Address: {:?}...", funding_address);
+    println!("🧊 The fridge (CTV Vault Address: {:?})", ctv_vault_address);
+    println!(
+        "👩‍🍳 The Kitchen (CTV Unvault Address: {:?})",
+        ctv_unvault_address
+    );
 
+    println!(
+        "\n😋 You start making a delicious reuben sandwich...! (Mining 101 blocks to funding address: {:?})",
+        funding_address
+    );
     let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
 
     let txid_result = bitcoin_rpc.send_to_address(
@@ -100,16 +104,20 @@ fn main() {
 
     let funding_txid = match txid_result {
         Ok(txid) => {
-            println!("Funding transaction sent: {}", txid);
+            println!("\n🥪 You place the reuben sandwich in the kitchen fridge (Funding transaction sent: {})", txid);
             txid
         }
         Err(e) => {
-            eprintln!("Error sending funding transaction: {:?}", e);
+            eprintln!("\n⚠️ Error sending funding transaction: {:?}", e);
             return;
         }
     };
 
-    println!("Mining 1 block...");
+    println!("\n Press Enter to continue...");
+    let mut input = String::new();
+    let _ = io::stdin().read_line(&mut input);
+
+    println!("⌛ Some more time passes... (Mining 1 block)");
     let _ = bitcoin_rpc.generate_to_address(1, &funding_address);
 
     let spend_vault_tx = spend_ctv(
@@ -124,22 +132,28 @@ fn main() {
 
     let vault_spend_txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-    println!("Transaction from vault sent: {}", vault_spend_txid);
+    println!("\n🚨 Someone took the reuben sandwich out of the fridge!! (Transaction from vault sent to unvault address: TXID {})", vault_spend_txid);
 
-    //check here if txid is in mempool
+    println!("\n Press Enter to continue...");
+    let mut input = String::new();
+    let _ = io::stdin().read_line(&mut input);
 
-    println!("Mining 1 block...");
+    // Check here if txid is in mempool
+
+    println!("🕗 Even more time passes... (Mining 1 block)");
     let _ = bitcoin_rpc.generate_to_address(1, &funding_address);
 
     let tx_outs = bitcoin_rpc.get_tx_out(&vault_spend_txid, 0, None);
 
     match tx_outs {
         Ok(tx_outs) => {
-            println!(
-                "TXID {vault_spend_txid} FOUND IN MEMPOOL!! Someone is trying to spend from the vault!!!, quick sweep funds to cold storage before 100 blocks pass!!"
-            );
+            println!("\n📲 Your super smart fridge texts you the following alert: Your delicious reuben sandwich has been taken from the fridge and moved in to the kitchen! (TXID {vault_spend_txid} FOUND IN MEMPOOL!!)");
 
-            print!("Would you like to sweep the funds to cold storage to stop this dumb hacker bitch? YES/NO:");
+            println!("\n Press Enter to continue...");
+            let mut input = String::new();
+            let _ = io::stdin().read_line(&mut input);
+
+            println!("\nWhat do you want to do? (enter a number between 1 and 2) \n\n1: Run to the kitchen and retrieve the reuben sandwich and take it to the really cold fridge in your basement (sweep funds to cold storage address)\n2: Put the sandwich in the toaster and wait for it to heat up (sweep funds to hot wallet address, this could be you or the theif trying to eat the sandwich)");
             io::stdout().flush().unwrap();
             let mut input = String::new();
             io::stdin()
@@ -148,13 +162,11 @@ fn main() {
 
             let answer = input.trim();
 
-            // spend from unvault contract to hot wallet
+            // Spend from unvault contract to hot wallet
 
             let hot_wallet_addr: Address<bitcoin::address::NetworkUnchecked> =
                 bitcoin_rpc.get_new_address(None, None).unwrap();
             let hot_wallet_addr = hot_wallet_addr.require_network(Network::Regtest).unwrap();
-
-            println!("Hot wallet address: {}", hot_wallet_addr);
 
             let prev_outs = vec![TxOut {
                 value: tx_outs.clone().unwrap().value,
@@ -173,28 +185,34 @@ fn main() {
 
             let serialized_tx = serialize_hex(&unvault_tx);
 
-            if answer.to_lowercase() == "no" {
-                println!("Mining 101 blocks...");
-                let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
-            } else {
-                println!("Transaction from unvault to hot wallet not sent.");
+            match answer {
+                "1" => println!("\n🏃‍♂️ You make a run for the kitchen to investigate!!"),
+                _ => {
+                    println!("\n🍞 You or the theif wait for the reuben sandwich to heat up in the toaster...(mining 101 blocks) ");
+                    let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
+                }
             }
 
             let hot_wallet_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
 
             if hot_wallet_txid.is_err() {
-                println!("Transaction from unvault to hot wallet cant be spent, not enough blocks passed. unlucky hacker!!!: {:?}", hot_wallet_txid);
+                println!("\n Press Enter to continue...");
 
-                println!("Choose an option: 1: sweep funds to the cold storage address and live happily ever after {}, 2: use the hot wallet address to try and steal the funds? ", cold_storage_address);
+                let mut input = String::new();
+                let _ = io::stdin().read_line(&mut input);
+
+                println!("\n⏳ The thief tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): {:?}", hot_wallet_txid);
+
+                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2: I am the thief so I want to take the sandwich home to my own fridge and eat it later (try and sweep funds to a different cold storage address)");
+
                 io::stdout().flush().unwrap();
                 let mut input = String::new();
                 io::stdin()
                     .read_line(&mut input)
                     .expect("Failed to read input");
 
-                let other_address = input.trim();
-
-                if other_address == "1" {
+                let answer_2 = input.trim();
+                if answer_2 == "1" {
                     let spend_unvault_tx_to_cold = spend_ctv(
                         vault_spend_txid,
                         amount - Amount::from_sat(840),
@@ -207,7 +225,7 @@ fn main() {
 
                     let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-                    println!("Transaction from vault to cold storage sent: {}", txid);
+                    println!("\n❄️ You put the sandwich in the really cold fridge in your basement so you can eat it later. (Transaction from vault to cold storage sent: {})", txid);
                 } else {
                     let spend_unvault_tx_to_cold = spend_ctv(
                         vault_spend_txid,
@@ -222,15 +240,22 @@ fn main() {
                     let failed_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
 
                     if failed_txid.is_err() {
-                        println!("LOOOOL NICE TRY LOSER, YOU CAN ONLY SEND TO THE COLD WALLET ADDRESS OR WAIT 100 BLOCKS!! {:?}", failed_txid);
+                        println!("\n🚫 LOOOOL NICE TRY THIEF, FOR SOME REASON THIS SANDWICH CAN ONLY GO IN THE OWNER'S FRIDGE!! OR YOU HAVE TO WAIT FOR THE TOASTER TO HEAT IT UP TO EAT IT !! (can't send to any address other than the one specified in the CTV contract, or wait 100 blocks) {:?}", failed_txid);
                     }
                 }
             } else {
-                println!("You were too slow or the hacker was too fast, funds have been swept to hot wallet: {}", hot_wallet_txid.unwrap());
+                println!("\n Press Enter to continue...");
+                let mut input = String::new();
+                let _ = io::stdin().read_line(&mut input);
+                println!("\n🏃 you somehow got lost on the way to your own kitchen, or you are not infact a theif and you are standing next to the toaster and it just pinged (the CSV timelock of 100 blocks passed)");
+                println!("\n Press Enter to continue...");
+                let mut input = String::new();
+                let _ = io::stdin().read_line(&mut input);
+                println!("\n🥪 You or the thief eat the sandwich!! It tasted really good and you think to yourself that we should defo enable these sandwiches asap, (funds have been swept to hot wallet: {})", hot_wallet_txid.unwrap());
             }
         }
         Err(e) => {
-            eprintln!("Error getting tx outs: {:?}", e);
+            eprintln!("\n⚠️ Error getting tx outs: {:?}", e);
         }
     }
 }

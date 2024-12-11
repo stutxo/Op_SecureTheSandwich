@@ -1,5 +1,5 @@
 [package]
-name = "ctv_vault"
+name = "ctv_vault_adventure"
 version = "0.1.0"
 edition = "2021"
 
