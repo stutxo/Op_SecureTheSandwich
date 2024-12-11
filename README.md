@@ -37,14 +37,16 @@ Wallet loaded successfully.
 (Mining 101 blocks to funding address: bcrt1qv6zu4ectzyq4zneqhra4sxssceqcmxsw7gdk4v)
 
 🥪 You place the reuben sandwich in the kitchen fridge
-(Funding transaction sent: 091a599788a3a6d1bbe42de1a527372b148db6e5453e92ce0046b24a2c77640c)
+(Funding transaction sent:
+091a599788a3a6d1bbe42de1a527372b148db6e5453e92ce0046b24a2c77640c)
 
  Press Enter to continue...
 
 ⌛ Some more time passes... (Mining 1 block)
 
 🚨 Someone took the reuben sandwich out of the fridge!! or something...😹
-(Transaction from vault sent to unvault address: TXID 279bc3c4279e9edd130722ade1e85f0e0b7d518beff7d178852f97daa06c91df)
+(Transaction from vault sent to unvault address:
+TXID 279bc3c4279e9edd130722ade1e85f0e0b7d518beff7d178852f97daa06c91df)
 
  Press Enter to continue...
 
