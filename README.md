@@ -13,8 +13,12 @@ Can you stop the evil cat thief from eating the Reuben sandwich before it's too 
 
 To start the game, run the following commands
 
+Start a bitcoin inquisition node in regtest (i hadd to add fallback fee for now to get it to work)
 ```bash
 ./bitcoind -regtest -fallbackfee=0.0001
+```
+
+```bash
 cargo run
 ```
 
