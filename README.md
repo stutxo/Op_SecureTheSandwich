@@ -120,12 +120,12 @@ This is a reimplentation of jamesob's `simple-ctv-vault`. You can read more here
 
 ### short explanation
 
-We send bitcoin to a vault address. Then when we want to spend from this address, we can only send the bitcoin to another unvault address using a CTV contract.
+You Send bitcoin to a vault address. Then when you want to spend from this address, you can only send the bitcoin to another unvault address using a CTV contract.
 
-Once the bitcoin has been moved to the unvault address, we can send it to our cold storage address or spend to any address after 100 blocks.
+Once the bitcoin has been moved to the unvault address, you can sweep the funds to your cold storage address or sweep them to any address after 100 blocks.
 
-Because we can see the txid of the transaction being spent from the original vault address, we can monitor this txid to see if it ends up in the mempool.
-If it does, we have 100 blocks to sweep the funds to our cold storage address or the funds will be sent to the hot wallet address.
+Because you can see the txid of the transaction being spent from the original vault address, you can monitor this txid to see if it ends up in the mempool.
+If it does, you have 100 blocks to sweep the funds to your cold storage address or the funds will be sent to the hot wallet address.
 
 
 ```mermaid
