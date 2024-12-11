@@ -8,7 +8,7 @@ Can you stop the evil cat thief from eating the Reuben sandwich before it's too 
 
 ## Requirements
 
-- Rust
+- Rust https://www.rust-lang.org/tools/install
 - Bitcoin Inquisition node https://github.com/bitcoin-inquisition/bitcoin
 
 ## Setup
