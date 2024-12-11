@@ -1,8 +1,11 @@
 use anyhow::Result;
-use std::env;
+use std::{
+    env,
+    io::{self, Write},
+};
 
 use bitcoin::{
-    absolute, amount,
+    absolute,
     consensus::{encode::serialize_hex, Encodable},
     hashes::{sha256, Hash},
     key::{Keypair, Secp256k1},
@@ -80,7 +83,7 @@ fn main() {
     println!("CTV Vault Address: {:?}", ctv_vault_address);
     println!("CTV Unvault Address: {:?}", ctv_unvault_address);
 
-    println!("Mining blocks to Address: {:?}...", funding_address);
+    println!("Mining 101 blocks to Address: {:?}...", funding_address);
 
     let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
 
@@ -135,14 +138,20 @@ fn main() {
                 "TXID {vault_spend_txid} FOUND IN MEMPOOL!! Someone is trying to spend from the vault!!!, quick sweep funds to cold storage before 100 blocks pass!!"
             );
 
+            print!("Would you like to sweep the funds to cold storage to stop this dumb hacker bitch? YES/NO:");
+            io::stdout().flush().unwrap();
+            let mut input = String::new();
+            io::stdin()
+                .read_line(&mut input)
+                .expect("Failed to read input");
+
+            let answer = input.trim();
+
             // spend from unvault contract to hot wallet
 
             let hot_wallet_addr: Address<bitcoin::address::NetworkUnchecked> =
                 bitcoin_rpc.get_new_address(None, None).unwrap();
             let hot_wallet_addr = hot_wallet_addr.require_network(Network::Regtest).unwrap();
-
-            // println!("Mining 101 blocks...");
-            // let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
 
             let prev_outs = vec![TxOut {
                 value: tx_outs.clone().unwrap().value,
@@ -161,6 +170,13 @@ fn main() {
 
             let serialized_tx = serialize_hex(&unvault_tx);
 
+            if answer.to_lowercase() == "no" {
+                println!("Mining 101 blocks...");
+                let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
+            } else {
+                println!("Transaction from unvault to hot wallet not sent.");
+            }
+
             let hot_wallet_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
 
             if hot_wallet_txid.is_err() {
@@ -177,6 +193,8 @@ fn main() {
                 let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
                 println!("Transaction from vault to cold storage sent: {}", txid);
+            } else {
+                println!("You were too slow or the hacker was too fast, funds have been swept to hot wallet: {}", hot_wallet_txid.unwrap());
             }
         }
         Err(e) => {
