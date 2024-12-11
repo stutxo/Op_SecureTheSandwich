@@ -1,5 +1,7 @@
 # Op_SecureTheSandwich: A CTV Vault RPG
 
+![alt text](image.png)
+
 ## Overview
 
 Can you stop the evil cat thief from eating the Reuben sandwich before it's too late?! 🥪🐱
