@@ -86,7 +86,7 @@ fn main() {
     );
 
     println!(
-        "\n😋 You start making a delicious reuben sandwich...! (Mining 101 blocks to funding address: {:?})",
+        "\n😋 You start making a delicious reuben sandwich...! You look forward to eating it later, but hope your evil cat doesnt try to steal it first (Mining 101 blocks to funding address: {:?})",
         funding_address
     );
     let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
@@ -132,7 +132,7 @@ fn main() {
 
     let vault_spend_txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-    println!("\n🚨 Someone took the reuben sandwich out of the fridge!! (Transaction from vault sent to unvault address: TXID {})", vault_spend_txid);
+    println!("\n🚨 Someone took the reuben sandwich out of the fridge!! or something...😹 (Transaction from vault sent to unvault address: TXID {})", vault_spend_txid);
 
     println!("\n Press Enter to continue...");
     let mut input = String::new();
@@ -153,7 +153,7 @@ fn main() {
             let mut input = String::new();
             let _ = io::stdin().read_line(&mut input);
 
-            println!("\nWhat do you want to do? (enter a number between 1 and 2) \n\n1: Run to the kitchen and retrieve the reuben sandwich and take it to the really cold fridge in your basement (sweep funds to cold storage address)\n2: Put the sandwich in the toaster and wait for it to heat up (sweep funds to hot wallet address, this could be you or the evil cat theif trying to eat the sandwich)");
+            println!("\nWhat do you want to do? (enter a number between 1 and 3) \n\n1: Run to the kitchen to rescue the reuben sandwich and take it to the really cold fridge in your basement (sweep funds to cold storage address)\n2: Put the sandwich in the toaster and wait for it to heat up (sweep funds to hot wallet address)\n3:😹 You are the evil cat thief so you want to take the sandwich for yourself (sweep funds to theifs address)");
             io::stdout().flush().unwrap();
             let mut input = String::new();
             io::stdin()
@@ -187,10 +187,14 @@ fn main() {
 
             match answer {
                 "1" => println!("\n🏃 You make a run for the kitchen to investigate!!"),
-                _ => {
-                    println!("\n🍞 You or the 😹 theif wait for the reuben sandwich to heat up in the toaster...(mining 101 blocks) ");
+                "2" => {
+                    println!("\n🍞 You wait for the reuben sandwich to heat up in the toaster while keeping an eye out for wizards or cats or something...idk (mining 101 blocks) ");
                     let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
                 }
+                "3" => println!(
+                    "\n😹 You are the evil cat but you have standards and you still want to heat up your sandwich in the toaster so now you have to wait"
+                ),
+                _ => println!("\n Invalid option selected!"),
             }
 
             let hot_wallet_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
@@ -201,9 +205,9 @@ fn main() {
                 let mut input = String::new();
                 let _ = io::stdin().read_line(&mut input);
 
-                println!("\n⏳ The thief tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): {:?}", hot_wallet_txid);
+                println!("\n⏳ The evil cat tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): {:?}", hot_wallet_txid);
 
-                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2: You are the 😹 thief so you want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)");
+                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2:😹 You are the evil cat thief so you want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)");
 
                 io::stdout().flush().unwrap();
                 let mut input = String::new();
@@ -225,7 +229,7 @@ fn main() {
 
                     let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-                    println!("\n❄️ You put the sandwich in the really cold fridge in your basement so you can eat it later. (Transaction from vault to cold storage sent: {})", txid);
+                    println!("\n❄️ You put the sandwich in the really cold fridge in your basement so you can eat it later. You think to yourself that its really amazing how i can secure this sandwich so easily and not have to worry about backing up any crazy weird stuff to recreat the sandwich. You also think to yourself that it was a weird thing to think about (Transaction from vault to cold storage sent: {})", txid);
                 } else {
                     let spend_unvault_tx_to_cold = spend_ctv(
                         vault_spend_txid,
@@ -240,18 +244,22 @@ fn main() {
                     let failed_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
 
                     if failed_txid.is_err() {
-                        println!("\n🚫 LOOOOL NICE TRY THIEF, FOR SOME REASON THIS SANDWICH CAN ONLY GO IN THE OWNER'S FRIDGE!! OR YOU HAVE TO WAIT FOR THE TOASTER TO HEAT IT UP TO EAT IT !! (can't send to any address other than the one specified in the CTV contract, or wait 100 blocks) {:?}", failed_txid);
+                        println!("\n🚫 LOOOOL NICE TRY STUPID CAT THIEF, FOR SOME REASON THIS SANDWICH CAN ONLY GO IN THE OWNER'S FRIDGE!! OR YOU HAVE TO WAIT FOR THE TOASTER TO HEAT IT UP TO EAT IT !! (can't send to any address other than the one specified in the CTV contract, or wait 100 blocks) {:?}", failed_txid);
                     }
                 }
             } else {
                 println!("\n Press Enter to continue...");
                 let mut input = String::new();
                 let _ = io::stdin().read_line(&mut input);
-                println!("\n🏃 you somehow got lost on the way to your own kitchen, or you are not infact a theif and you are standing next to the toaster and it just pinged (the CSV timelock of 100 blocks passed)");
+                println!("\n🏃 you somehow got lost on the way to your own kitchen, or you are not infact a theif and you are standing next to the toaster and it just pinged. The sandwich is now ready to eat. (the CSV timelock of 100 blocks passed)");
                 println!("\n Press Enter to continue...");
                 let mut input = String::new();
                 let _ = io::stdin().read_line(&mut input);
-                println!("\n🥪 You or the thief eat the sandwich!! It tasted really good and you think to yourself that we should defo enable these sandwiches asap, (funds have been swept to hot wallet: {})", hot_wallet_txid.unwrap());
+                if answer == "2" {
+                    println!("\n🍞 You take the sandwich out of the toaster and eat it. It tasted really good and you think to yourself that we should defo enable these sandwiches asap, (funds have been swept to hot wallet: {})", hot_wallet_txid.unwrap());
+                } else if answer == "3" {
+                    println!("\n😹 The evil cat thief eat the sandwich!! 😹🫵 , (funds have been swept to theifs hot wallet f: {})", hot_wallet_txid.unwrap());
+                }
             }
         }
         Err(e) => {
