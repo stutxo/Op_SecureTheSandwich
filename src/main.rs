@@ -132,7 +132,7 @@ fn main() {
 
     let vault_spend_txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-    println!("\n🚨 Someone took the reuben sandwich out of the fridge!! or something...😹 (Transaction from vault sent to unvault address: TXID {})", vault_spend_txid);
+    println!("\n🚨 Someone took the reuben sandwich out of the fridge!! or some...thing 😹 (Transaction from vault sent to unvault address: TXID {})", vault_spend_txid);
 
     println!("\n Press Enter to continue...");
     let mut input = String::new();
