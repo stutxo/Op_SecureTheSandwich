@@ -2,7 +2,7 @@ use anyhow::Result;
 use std::env;
 
 use bitcoin::{
-    absolute,
+    absolute, amount,
     consensus::{encode::serialize_hex, Encodable},
     hashes::{sha256, Hash},
     key::{Keypair, Secp256k1},
@@ -82,7 +82,7 @@ fn main() {
 
     println!("Mining blocks to Address: {:?}...", funding_address);
 
-    let _ = bitcoin_rpc.generate_to_address(110, &funding_address);
+    let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
 
     let txid_result = bitcoin_rpc.send_to_address(
         &ctv_vault_address,
@@ -95,7 +95,7 @@ fn main() {
         None,
     );
 
-    let txid = match txid_result {
+    let funding_txid = match txid_result {
         Ok(txid) => {
             println!("Funding transaction sent: {}", txid);
             txid
@@ -106,41 +106,83 @@ fn main() {
         }
     };
 
-    let tx_outs = bitcoin_rpc.get_tx_out(&txid, 0, None).unwrap();
+    println!("Mining 1 block...");
+    let _ = bitcoin_rpc.generate_to_address(1, &funding_address);
 
-    let tx_outs = tx_outs.unwrap();
-    let prev_outs = vec![TxOut {
-        value: tx_outs.value,
-        script_pubkey: tx_outs.script_pub_key.script().unwrap(),
-    }];
-
-    println!("Mining 10 blocks...");
-    let _ = bitcoin_rpc.generate(10, None);
-
-    let hot_wallet_addr: Address<bitcoin::address::NetworkUnchecked> =
-        bitcoin_rpc.get_new_address(None, None).unwrap();
-    let hot_wallet_addr = hot_wallet_addr.require_network(Network::Regtest).unwrap();
-
-    let spend_vault_tx = spend_ctv(txid, amount, vault_spend_info, ctv_unvault_address);
+    let spend_vault_tx = spend_ctv(
+        funding_txid,
+        amount - Amount::from_sat(420),
+        vault_spend_info,
+        ctv_unvault_address,
+    );
 
     let serialized_tx = serialize_hex(&spend_vault_tx);
 
-    let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
+    let vault_spend_txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
 
-    println!("Transaction from vault sent: {}", txid);
+    println!("Transaction from vault sent: {}", vault_spend_txid);
 
-    // println!("Mining 10 blocks...");
-    // let _ = bitcoin_rpc.generate(10, None);
+    //check here if txid is in mempool
 
-    // let unvault_tx = spend_to_hot(
-    //     txid,
-    //     amount,
-    //     hot_wallet_addr,
-    //     hot_wallet_pubkey,
-    //     unvault_spend_info,
-    //     &prev_outs,
-    //     hot_wallet_key_pair.secret_key(),
-    // );
+    println!("Mining 1 block...");
+    let _ = bitcoin_rpc.generate_to_address(1, &funding_address);
+
+    let tx_outs = bitcoin_rpc.get_tx_out(&vault_spend_txid, 0, None);
+
+    match tx_outs {
+        Ok(tx_outs) => {
+            println!(
+                "TXID {vault_spend_txid} FOUND IN MEMPOOL!! Someone is trying to spend from the vault!!!, quick sweep funds to cold storage before 100 blocks pass!!"
+            );
+
+            // spend from unvault contract to hot wallet
+
+            let hot_wallet_addr: Address<bitcoin::address::NetworkUnchecked> =
+                bitcoin_rpc.get_new_address(None, None).unwrap();
+            let hot_wallet_addr = hot_wallet_addr.require_network(Network::Regtest).unwrap();
+
+            // println!("Mining 101 blocks...");
+            // let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
+
+            let prev_outs = vec![TxOut {
+                value: tx_outs.clone().unwrap().value,
+                script_pubkey: tx_outs.clone().unwrap().script_pub_key.script().unwrap(),
+            }];
+
+            let unvault_tx = spend_to_hot(
+                vault_spend_txid,
+                tx_outs.unwrap().value,
+                hot_wallet_addr,
+                hot_wallet_pubkey,
+                unvault_spend_info.clone(),
+                &prev_outs,
+                hot_wallet_key_pair.secret_key(),
+            );
+
+            let serialized_tx = serialize_hex(&unvault_tx);
+
+            let hot_wallet_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
+
+            if hot_wallet_txid.is_err() {
+                println!("Transaction from unvault to hot wallet cant be spent, not enough blocks passed. unlucky hacker!!!: {:?}", hot_wallet_txid);
+                let spend_unvault_tx_to_cold = spend_ctv(
+                    vault_spend_txid,
+                    amount - Amount::from_sat(840),
+                    unvault_spend_info,
+                    cold_storage_address,
+                );
+
+                let serialized_tx = serialize_hex(&spend_unvault_tx_to_cold);
+
+                let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
+
+                println!("Transaction from vault to cold storage sent: {}", txid);
+            }
+        }
+        Err(e) => {
+            eprintln!("Error getting tx outs: {:?}", e);
+        }
+    }
 }
 
 fn spend_to_hot(
@@ -214,7 +256,7 @@ fn spend_ctv(
     }];
 
     let ctv_tx_out = vec![TxOut {
-        value: amount - Amount::from_sat(420),
+        value: amount,
         script_pubkey: ctv_target_address.script_pubkey(),
     }];
 
@@ -252,7 +294,7 @@ fn create_unvault_address(
     let (unspendable_pubkey, _parity) = XOnlyPublicKey::from_keypair(&key_pair);
 
     let cold_tx_out = TxOut {
-        value: amount - Amount::from_sat(420),
+        value: amount - Amount::from_sat(840),
         script_pubkey: cold_storage_address.script_pubkey(),
     };
 
