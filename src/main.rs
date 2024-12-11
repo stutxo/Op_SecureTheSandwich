@@ -212,7 +212,7 @@ fn main() {
                 let mut input = String::new();
                 let _ = io::stdin().read_line(&mut input);
 
-                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2:😹 You are the evil cat thief, if you cant eait it now you then want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)");
+                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2:😹 You are the evil cat thief, if you cant eat it now you then want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)");
 
                 io::stdout().flush().unwrap();
                 let mut input = String::new();
