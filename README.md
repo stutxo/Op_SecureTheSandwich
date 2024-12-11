@@ -38,7 +38,7 @@ Wallet loaded successfully.
     bcrt1p32dh4uqmy7qcvssvja5pmeyenu327fvyn5nks7908egux9376pnqfemal3
 
 😋 You start making a delicious reuben sandwich...! You look forward to eating it later,
-but hope your evil cat doesn't try to steal it first
+but hope your evil cat doesnt try to steal it first
 (Mining 101 blocks to funding address:
     bcrt1qv6zu4ectzyq4zneqhra4sxssceqcmxsw7gdk4v)
 
@@ -79,7 +79,7 @@ wallet address)
 
  Press Enter to continue...
 
-⏳ The evil cat tried to eat the sandwich but it's not ready to eat yet!!!
+⏳ The evil cat tried to eat the sandwich but its not ready to eat yet!!!
 (hot wallet spend path failed as 100 blocks have not passed):
     Err(JsonRpc(Rpc(RpcError { code: -26 message: "non-BIP68-final", data: None })))
 
