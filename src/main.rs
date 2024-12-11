@@ -153,7 +153,7 @@ fn main() {
             let mut input = String::new();
             let _ = io::stdin().read_line(&mut input);
 
-            println!("\nWhat do you want to do? (enter a number between 1 and 2) \n\n1: Run to the kitchen and retrieve the reuben sandwich and take it to the really cold fridge in your basement (sweep funds to cold storage address)\n2: Put the sandwich in the toaster and wait for it to heat up (sweep funds to hot wallet address, this could be you or the theif trying to eat the sandwich)");
+            println!("\nWhat do you want to do? (enter a number between 1 and 2) \n\n1: Run to the kitchen and retrieve the reuben sandwich and take it to the really cold fridge in your basement (sweep funds to cold storage address)\n2: Put the sandwich in the toaster and wait for it to heat up (sweep funds to hot wallet address, this could be you or the evil cat theif trying to eat the sandwich)");
             io::stdout().flush().unwrap();
             let mut input = String::new();
             io::stdin()
@@ -186,9 +186,9 @@ fn main() {
             let serialized_tx = serialize_hex(&unvault_tx);
 
             match answer {
-                "1" => println!("\n🏃‍♂️ You make a run for the kitchen to investigate!!"),
+                "1" => println!("\n🏃 You make a run for the kitchen to investigate!!"),
                 _ => {
-                    println!("\n🍞 You or the theif wait for the reuben sandwich to heat up in the toaster...(mining 101 blocks) ");
+                    println!("\n🍞 You or the 😹 theif wait for the reuben sandwich to heat up in the toaster...(mining 101 blocks) ");
                     let _ = bitcoin_rpc.generate_to_address(101, &funding_address);
                 }
             }
@@ -203,7 +203,7 @@ fn main() {
 
                 println!("\n⏳ The thief tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): {:?}", hot_wallet_txid);
 
-                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2: I am the thief so I want to take the sandwich home to my own fridge and eat it later (try and sweep funds to a different cold storage address)");
+                println!("\nChoose an option below:\n1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)\n2: You are the 😹 thief so you want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)");
 
                 io::stdout().flush().unwrap();
                 let mut input = String::new();
