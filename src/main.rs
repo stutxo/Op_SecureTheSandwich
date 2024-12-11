@@ -117,6 +117,7 @@ fn main() {
         amount - Amount::from_sat(420),
         vault_spend_info,
         ctv_unvault_address,
+        None,
     );
 
     let serialized_tx = serialize_hex(&spend_vault_tx);
@@ -153,6 +154,8 @@ fn main() {
                 bitcoin_rpc.get_new_address(None, None).unwrap();
             let hot_wallet_addr = hot_wallet_addr.require_network(Network::Regtest).unwrap();
 
+            println!("Hot wallet address: {}", hot_wallet_addr);
+
             let prev_outs = vec![TxOut {
                 value: tx_outs.clone().unwrap().value,
                 script_pubkey: tx_outs.clone().unwrap().script_pub_key.script().unwrap(),
@@ -161,7 +164,7 @@ fn main() {
             let unvault_tx = spend_to_hot(
                 vault_spend_txid,
                 tx_outs.unwrap().value,
-                hot_wallet_addr,
+                hot_wallet_addr.clone(),
                 hot_wallet_pubkey,
                 unvault_spend_info.clone(),
                 &prev_outs,
@@ -181,18 +184,47 @@ fn main() {
 
             if hot_wallet_txid.is_err() {
                 println!("Transaction from unvault to hot wallet cant be spent, not enough blocks passed. unlucky hacker!!!: {:?}", hot_wallet_txid);
-                let spend_unvault_tx_to_cold = spend_ctv(
-                    vault_spend_txid,
-                    amount - Amount::from_sat(840),
-                    unvault_spend_info,
-                    cold_storage_address,
-                );
 
-                let serialized_tx = serialize_hex(&spend_unvault_tx_to_cold);
+                println!("Choose an option: 1: sweep funds to the cold storage address and live happily ever after {}, 2: use the hot wallet address to try and steal the funds? ", cold_storage_address);
+                io::stdout().flush().unwrap();
+                let mut input = String::new();
+                io::stdin()
+                    .read_line(&mut input)
+                    .expect("Failed to read input");
 
-                let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
+                let other_address = input.trim();
 
-                println!("Transaction from vault to cold storage sent: {}", txid);
+                if other_address == "1" {
+                    let spend_unvault_tx_to_cold = spend_ctv(
+                        vault_spend_txid,
+                        amount - Amount::from_sat(840),
+                        unvault_spend_info,
+                        cold_storage_address,
+                        None,
+                    );
+
+                    let serialized_tx = serialize_hex(&spend_unvault_tx_to_cold);
+
+                    let txid = bitcoin_rpc.send_raw_transaction(serialized_tx).unwrap();
+
+                    println!("Transaction from vault to cold storage sent: {}", txid);
+                } else {
+                    let spend_unvault_tx_to_cold = spend_ctv(
+                        vault_spend_txid,
+                        amount - Amount::from_sat(840),
+                        unvault_spend_info,
+                        cold_storage_address,
+                        Some(hot_wallet_addr),
+                    );
+
+                    let serialized_tx = serialize_hex(&spend_unvault_tx_to_cold);
+
+                    let failed_txid = bitcoin_rpc.send_raw_transaction(serialized_tx);
+
+                    if failed_txid.is_err() {
+                        println!("LOOOOL NICE TRY LOSER, YOU CAN ONLY SEND TO THE COLD WALLET ADDRESS OR WAIT 100 BLOCKS!! {:?}", failed_txid);
+                    }
+                }
             } else {
                 println!("You were too slow or the hacker was too fast, funds have been swept to hot wallet: {}", hot_wallet_txid.unwrap());
             }
@@ -266,6 +298,7 @@ fn spend_ctv(
     amount: Amount,
     taproot_spend_info: TaprootSpendInfo,
     ctv_target_address: Address,
+    test_wrong_addr: Option<Address>,
 ) -> Transaction {
     let inputs = vec![TxIn {
         previous_output: OutPoint { txid, vout: 0 },
@@ -278,11 +311,24 @@ fn spend_ctv(
         script_pubkey: ctv_target_address.script_pubkey(),
     }];
 
-    let mut unsigned_tx = Transaction {
-        version: transaction::Version::TWO,
-        lock_time: absolute::LockTime::ZERO,
-        input: inputs,
-        output: ctv_tx_out.clone(),
+    let mut unsigned_tx = if test_wrong_addr.is_none() {
+        Transaction {
+            version: transaction::Version::TWO,
+            lock_time: absolute::LockTime::ZERO,
+            input: inputs,
+            output: ctv_tx_out.clone(),
+        }
+    } else {
+        let ctv_tx_out = vec![TxOut {
+            value: amount,
+            script_pubkey: test_wrong_addr.unwrap().script_pubkey(),
+        }];
+        Transaction {
+            version: transaction::Version::TWO,
+            lock_time: absolute::LockTime::ZERO,
+            input: inputs,
+            output: ctv_tx_out.clone(),
+        }
     };
 
     let ctv_hash = calc_ctv_hash(&ctv_tx_out, false);
