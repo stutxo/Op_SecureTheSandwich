@@ -47,7 +47,8 @@ Wallet loaded successfully.
 
 🕗 Even more time passes... (Mining 1 block)
 
-📲 Your super smart fridge texts you the following alert: Your delicious reuben sandwich has been taken from the fridge and moved in to the kitchen! (TXID 279bc3c4279e9edd130722ade1e85f0e0b7d518beff7d178852f97daa06c91df FOUND IN MEMPOOL!!)
+📲 Your super smart fridge texts you the following alert: Your delicious reuben sandwich has been taken from the fridge and moved in to the kitchen! (TXID
+279bc3c4279e9edd130722ade1e85f0e0b7d518beff7d178852f97daa06c91df FOUND IN MEMPOOL!!)
 
  Press Enter to continue...
 
@@ -64,14 +65,17 @@ What do you want to do? (enter a number between 1 and 3)
  Press Enter to continue...
 
 
-⏳ The evil cat tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): Err(JsonRpc(Rpc(RpcError { code: -26, message: "non-BIP68-final", data: None })))
+⏳ The evil cat tried to eat the sandwich but it's not ready to eat yet!!! (hot wallet spend path failed as 100 blocks have not passed): Err(JsonRpc(Rpc(RpcError { code: -26
+message: "non-BIP68-final", data: None })))
 
 Choose an option below:
 1: Put the sandwich in the really cold fridge in your basement so you can eat it later (sweep funds to cold storage address)
 2:😹 You are the evil cat thief so you want to take the sandwich home to your own fridge and eat it later (try and sweep funds to a different cold storage address)
 1
 
-❄️ You put the sandwich in the really cold fridge in your basement so you can eat it later. You think to yourself that its really amazing how i can secure this sandwich so easily and not have to worry about backing up any crazy weird stuff to recreat the sandwich. You also think to yourself that it was a weird thing to think about (Transaction from vault to cold storage sent: ff2f76c9f144ea2b6f8220645ccb2a2c0a8b6f6d8696dfcb9b8ceffb95a581d7)
+❄️ You put the sandwich in the really cold fridge in your basement so you can eat it later. You think to yourself that its really amazing how i can secure this sandwich so easily
+and not have to worry about backing up any crazy weird stuff to recreat the sandwich. You also think to yourself that it was a weird thing to think about (Transaction from vault
+to cold storage sent: ff2f76c9f144ea2b6f8220645ccb2a2c0a8b6f6d8696dfcb9b8ceffb95a581d7)
 ```
 
 ## Tech stuff
