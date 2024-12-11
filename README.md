@@ -11,10 +11,16 @@ Can you stop the evil cat thief from eating the Reuben sandwich before it's too 
 
 ## Commands
 
+To start the game, run the following commands
+
 ```bash
 ./bitcoind -regtest -fallbackfee=0.0001
 cargo run
 ```
+
+## Example
+
+
 
 ## Tech stuff
 
