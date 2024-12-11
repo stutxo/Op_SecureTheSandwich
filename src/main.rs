@@ -74,14 +74,14 @@ fn main() {
 
     let ctv_vault_address = Address::p2tr_tweaked(vault_spend_info.output_key(), Network::Regtest);
 
-    println!(
-        "🥶 Basement cold fridge address: {:?}",
-        cold_storage_address
-    );
+    println!("🥶 basement fridge address: {:?}", cold_storage_address);
 
-    println!("🧊 The fridge (CTV Vault Address: {:?})", ctv_vault_address);
     println!(
-        "👩‍🍳 The Kitchen (CTV Unvault Address: {:?})",
+        "🧊 kitchen fridge (CTV Vault Address: {:?})",
+        ctv_vault_address
+    );
+    println!(
+        "🍴 Kitchen (CTV Unvault Address: {:?})",
         ctv_unvault_address
     );
 
