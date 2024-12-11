@@ -138,8 +138,6 @@ fn main() {
     let mut input = String::new();
     let _ = io::stdin().read_line(&mut input);
 
-    // Check here if txid is in mempool
-
     println!("🕗 Even more time passes... (Mining 1 block)");
     let _ = bitcoin_rpc.generate_to_address(1, &funding_address);
 
@@ -161,8 +159,6 @@ fn main() {
                 .expect("Failed to read input");
 
             let answer = input.trim();
-
-            // Spend from unvault contract to hot wallet
 
             let hot_wallet_addr: Address<bitcoin::address::NetworkUnchecked> =
                 bitcoin_rpc.get_new_address(None, None).unwrap();
