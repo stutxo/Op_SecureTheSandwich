@@ -373,7 +373,6 @@ fn spend_ctv(
         let script_ver = (ctv_script.clone(), LeafVersion::TapScript);
         let ctrl_block = taproot_spend_info.control_block(&script_ver).unwrap();
 
-        input.witness.push(ctv_hash);
         input.witness.push(script_ver.0.into_bytes());
         input.witness.push(ctrl_block.serialize());
     }
@@ -467,7 +466,6 @@ fn send_ctv(ctv_hash: [u8; 32]) -> ScriptBuf {
     Builder::new()
         .push_slice(ctv_hash)
         .push_opcode(OP_NOP4)
-        .push_opcode(OP_DROP)
         .into_script()
 }
 
